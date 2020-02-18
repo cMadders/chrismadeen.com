@@ -1,0 +1,67 @@
+.chart-container{
+    /*width:100%;*/
+    /*margin:auto;*/
+    background-color: steelblue;
+    border-radius: 25px;
+    border: 3px;
+    text-align: center;
+    border-style: double;
+    border-color: lightsteelblue;
+}
+
+.chart-canvas{
+    width:100%;
+    max-width:900px;
+    max-height:500px;
+    min-height:250px;
+}
+
+.chart-header{
+    text-align: center;
+    font-weight:bold;
+    font-size:1em;
+}
+
+.chart-subheader{
+    text-align:center;
+    margin:0px;
+}
+
+.chart-summary-cgm{
+  color:white;  
+}
+
+.chart-summary{
+    /*margin: 10px;*/
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 1.3em;
+    text-align: center;
+}
+
+.chart-summary p{
+    /*max-width:80%;*/
+    margin:auto;
+    margin-top:20px;
+}
+.chart-summary p a{
+    color:orange;
+}
+
+@media screen and (max-width: 800px) and (min-width: 600px) {
+
+ }
+ @media screen and (max-width: 600px) and (min-width: 400px) {
+     .chart-summary{
+         font-size: 1.0em;
+     }
+ }
+
+ @media screen and (max-width: 400px) and (min-width: 100px) {
+     .chart-summary{
+         font-size: 1.0em;
+     }      
+     
+     .chart-header{
+         font-size:.8em;
+     }
+ }
