@@ -40,17 +40,14 @@ function getElementSizes(element){
     var outObj = {};
     let regexp = /col-[\w]+-[0-9]+/ig;
     let array = [...classString.matchAll(regexp)];
-    while(classString.indexOf('col-') >= 0){
-        var index = classString.indexOf('col-');
-        var fullString = classString.substring(index,classString.indexOf(' ', index));
-        var size = fullString.substring(4,6);
-        var value = fullString.substring(7);
-        outObj[size] = parseInt(value);
-        classString = classString.substring(index + 9);
+    for(i in array){
+        let string = array[i][0];
+        string = string.replace('col-','');
+        const index = string.indexOf('-');
+        const col = string.substring(0,index);
+        const value = parseInt(string.substring(index + 1));
+        outObj[col] = value;
     }
-    // Return an empty array if no bootstrap col sizes detected
-    if(classString == element.className)
-        return makeSizeArray(0);
     return outObj;
 }
 
@@ -99,8 +96,21 @@ function subtractSizesFromElement(element, sizes){
 function absorbElement(elementGrow, elementShrink){
     var addSizes = getElementSizes(elementShrink);
     addSizesToElement(elementGrow, addSizes);
+    storePreviousColumns(elementShrink);
     elementShrink.className = stripColumns(elementShrink.className);
     $(elementShrink).addClass('hidden');
+}
+
+function unabsorbElement(elementShrink,elementGrow){
+    const previousCols = $(elementGrow).attr('previous-cols');
+    
+    $(elementGrow).attr('previous-cols','');
+    $(elementGrow).addClass(previousCols);
+    
+    const subSizes = getElementSizes(elementGrow);
+    subtractSizesFromElement(elementShrink,subSizes);
+    
+    $(elementGrow).removeClass('hidden');
 }
 
 // Reduce an element by a specified amount and add it to another
@@ -117,6 +127,10 @@ function makeSizeArray(value){
 
 // Strip bootstrap columns to make introduction of new sizes easier
 function stripColumns(className){
+    // Get class if element is handed
+    if(typeof className != 'string')
+        className = className.className;
+    
     if(typeof className == 'string')
         return className.replace(/col-[\w]+[-][0-9]+/ig,"");
 }
