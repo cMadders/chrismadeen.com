@@ -28,8 +28,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <!--<link type="text/css" rel="stylesheet" href="http://www.chrismadeen.com/css/main.css">-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link href="https://vjs.zencdn.net/6.2.0/video-js.css" rel="stylesheet">
-    <link href="https://www.chrismadeen.com/css/cgm_main.css" rel="stylesheet">
-    <link href="https://www.chrismadeen.com/css/charts.css" rel="stylesheet">
+    <link href="https://www.chrismadeen.com/css/cgm_main.css?modified=<?php echo filemtime(FCPATH . 'css/cgm_main.css')?>" rel="stylesheet">
+    <link href="https://www.chrismadeen.com/css/charts.css?modified=<?php echo filemtime(FCPATH . 'css/charts.css')?>" rel="stylesheet">
     <link href="https://use.fontawesome.com/releases/v5.1.1/css/all.css" rel="stylesheet">
    <link href="https://fonts.googleapis.com/css?family=Varela+Round|Work+Sans|Zilla+Slab&display=swap" rel="stylesheet">
 </head>
@@ -88,7 +88,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div id="about_container" class="container-fluid row canvas hidden">
                 <div class="dialogue col-xs-12 col-sm-12 col-lg-12 col-xl-12">
                     <div class="row">
-                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 hidden-in-portrait">
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 hidden-xs">
                             <h3 class="list-header row-even">About Chris </h3>
                             <p>
                                 Hello and welcome to ChrisMadeen.com.  If you are looking to get more information on me, Chris Madeen, then you have come to the right place.
@@ -106,7 +106,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 relations a breeze.
                             </p>
                         </div>
-                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 hidden-in-portrait">
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 hidden-xs">
                             <h3 class="list-header row-even">Technical Skills </h3>
                             <ul class="skills-list row-odd">
                                 <li>LAMP Stack Development</li>
@@ -129,7 +129,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <li>Cooperatively developed an embeddable native advertising solution with GUI database interface</li>
                             </ul>
                         </div>
-                       <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 hidden-in-landscape hidden-sm hidden-md hidden-lg hidden-xl">
+                       <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 hidden-sm hidden-md hidden-lg hidden-xl">
                             <h3 class="list-header row-even">About Chris </h3>
                             <p>
                                 Hello and welcome to ChrisMadeen.com.  If you are looking to get more information on me, Chris Madeen, then you have come to the right place.
@@ -137,7 +137,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 creative algorithms and debugging.  Usually, for better or for worse, I will find a way to integrate programming into my various hobbies.
                             </p>
                         </div>
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 hidden-in-landscape hidden-sm hidden-md hidden-lg hidden-xl">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 hidden-sm hidden-md hidden-lg hidden-xl">
                             <h3 class="list-header row-even">Technical Skills </h3>
                             <ul class="skills-list row-odd">
                                 <li>LAMP Stack Development</li>
@@ -251,15 +251,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
     <?php include 'application/views/modals/activity_range_modal.php'; ?>
     <?php include 'application/views/modals/fitbit_login_modal.php'; ?>
-    <span id="side_collapser" class=" collapse-chevron hidden"><i class="hidden fas fa-chevron-right"></i></span>
+    <span open="true" id="side_collapser" class=" collapse-chevron"><i class="fas fa-chevron-right"></i></span>
 </body>
 <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script src="https://vjs.zencdn.net/6.2.0/video.min.js"></script>
 <script type="text/javascript" src="https://www.chrismadeen.com/scripts/jquery.touchwipe.min.js"></script>
-<script type="text/javascript" src="https://www.chrismadeen.com/scripts/herbert.js"></script>
-<script type="text/javascript" src="https://www.chrismadeen.com/scripts/cgm_charts.js"></script>
-<script type="text/javascript" src="https://www.chrismadeen.com/scripts/cgm_fitbit.js"></script>
-<script type="text/javascript" src="./scripts/cgm_js_helper_functions.js"></script>
+<script type="text/javascript" src="https://www.chrismadeen.com/scripts/herbert.js?modified=<?php echo filemtime(FCPATH . 'scripts/herbert.js')?>"></script>
+<script type="text/javascript" src="https://www.chrismadeen.com/scripts/cgm_charts.js?modified=<?php echo filemtime(FCPATH . 'scripts/cgm_charts.js')?>"></script>
+<script type="text/javascript" src="https://www.chrismadeen.com/scripts/cgm_fitbit.js?modified=<?php echo filemtime(FCPATH . 'scripts/cgm_fitbit.js')?>"></script>
+<script type="text/javascript" src="https://www.chrismadeen.com/scripts/cgm_js_helper_functions.js?modified=<?php echo filemtime(FCPATH . 'scripts/cgm_js_helper_functions.js')?>"></script>
 <script>
     // Note to Viewer - Some methodology could be more efficient within this script tag.  The intent is to show
     // knowledge of rudimentary javascript functionality with different control structures and functions with 
@@ -467,12 +467,31 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         let sidebarWidth = $('.side-bar').width();
         let chevronWidth = $('#side_collapser i').width();
 
-        $('#side_collapser').css('right',sidebarWidth + (chevronWidth * 1.5) + 'px');
+        $('#side_collapser').css('right',sidebarWidth + (chevronWidth * 2) + 'px');
         
     }); 
-
-    headerObserver.observe(document.getElementById('menu_bar'));    
     
+    $('#side_collapser').on('click',function(){
+        main = $('.main-container')[0];
+        side = $('.side-bar')[0];
+        child = $(this).children('i');
+        childClass = child.attr('class');
+        
+        if(this.getAttribute("open") == "true"){
+            absorbElement(main,side);
+            $(this).attr("open","false");
+            child.attr('class',childClass.replace('right','left'));
+        }else{
+            if(!side.hasAttribute('previous-cols'))
+                $(side).attr('previous-cols',printColumns(side));
+            unabsorbElement(main,side);
+            this.setAttribute("open","true");
+            child.attr('class',childClass.replace('left','right'));
+        }
+    });
+
+    headerObserver.observe(document.getElementById('menu_bar'));
+    headerObserver.observe($('.side-bar')[0]);
     $(window).focus(function() {
         windowFocused = true;
     });
