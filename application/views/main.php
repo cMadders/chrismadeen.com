@@ -490,8 +490,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         }
     });
 
+    $('#modal_end_date').on('change',function(){
+        const end = $(this).val();
+        endObj = new Date(end);
+        if(endObj > today){
+            window.alert("The end date is in the future. I do not even know what I will be doing, then.\n Let's just set that to today's date.");
+            $(this).val(formatDateObject(today));
+        }
+    });
+
     headerObserver.observe(document.getElementById('menu_bar'));
     headerObserver.observe($('.side-bar')[0]);
+    
     $(window).focus(function() {
         windowFocused = true;
     });
