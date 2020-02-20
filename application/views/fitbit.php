@@ -51,8 +51,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <script  src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="https://www.chrismadeen.com/scripts/jquery.touchwipe.min.js"></script>
-<script type="text/javascript" src="https://www.chrismadeen.com/scripts/cgm_charts.js"></script>
-<script type="text/javascript" src="https://www.chrismadeen.com/scripts/cgm_fitbit.js"></script>
+<script type="text/javascript" src="https://www.chrismadeen.com/scripts/cgm_charts.js?modified=<?php echo filemtime(FCPATH . 'scripts/cgm_charts.js')?>"></script>
+<script type="text/javascript" src="https://www.chrismadeen.com/scripts/cgm_fitbit.js?modified=<?php echo filemtime(FCPATH . 'scripts/cgm_fitbit.js')?>"></script>
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script>
     const fitbit_id = "<?php echo $fitbit_id;?>";

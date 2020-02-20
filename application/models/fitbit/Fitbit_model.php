@@ -1,9 +1,10 @@
 <?php
 
 class Fitbit_model extends CI_Model {
-
+    private $DUPLICATE_ENTRY = 1062;
+    
     function submitActivities($data){
-        $outArray = array('response' => 'Success','errors' => array(),'entries' => 0);
+        $outArray = array('response' => 'Success','errors' => array(),'entries' => 0,'updates' => 0, 'duplicates' => 0);
         
         if(count($data) <= 0){
             $outArray['response'] = 'No entries submitted';
@@ -18,15 +19,43 @@ class Fitbit_model extends CI_Model {
                 'fitbit_user' => $user->local_id,
                 'activity' => $data->type,
                 'value' => $item->value);
+            
             $this->db->insert('fitbit_activities',$arr);
-            $ID = $this->db->insert_id();
-            if($ID > 0){
-                $outArray['entries']++;
-            }else{
-                array_push($outArray['errors'],$this->db->error());
-            }
+            
+            $result = $this->checkActivityEntry($arr);
+            $outArray[$result]++;
+
+            //array_push($outArray['errors'],$result);
         }
         return $outArray;
+    }
+    
+    function checkActivityEntry($arr){
+        $ID = $this->db->insert_id();
+        $result = '';
+        
+        if($ID > 0){
+            $result = 'entries';
+        }else{
+            $error = $this->db->error();
+            if($error['code'] == $this->DUPLICATE_ENTRY){
+                $updates = $this->updateActivityEntry($arr);
+            }
+            if($updates < 0){
+                $result = 'duplicates';
+            }else{
+                $result = 'updates';
+            }
+        }
+        return $result;
+    }
+    
+    function updateActivityEntry($arr){
+        $this->db->where('fitbit_user',$arr['fitbit_user']);
+        $this->db->where('activity',$arr['activity']);
+        $this->db->where('dateTime',$arr['dateTime']);
+        $this->db->update('fitbit_activities',$arr);
+        return $this->db->affected_rows();
     }
     
     function getActivities($dateStart,$dateEnd,$activity,$user){

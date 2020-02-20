@@ -173,7 +173,9 @@ var submitActivityData = function(data,type,user_id){
         url: AjaxURL,
         data: {data: jsonString},
             success: function (result) {
-                window.alert(result.response + '!' + ' \nNew Entries: ' + result.entries);
+                window.alert(result.response + '!' + ' \nNew Entries: ' + result.entries + '\n'
+                        + 'Updates: ' + result.updates
+                        );
                 resolve(result);
             }
         });
