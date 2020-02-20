@@ -116,7 +116,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script src="https://vjs.zencdn.net/6.2.0/video.min.js"></script>
 <script>
-    var cookie ='<?php echo $_COOKIE['Cook']; ?>';
+    const cookie = "<?php echo $main_cook['value'];?>";
     var baseURL = '<?php echo $base;?>';
     
     function readURL(input) {

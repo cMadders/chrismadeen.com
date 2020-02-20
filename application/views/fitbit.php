@@ -56,7 +56,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script>
     const fitbit_id = "<?php echo $fitbit_id;?>";
-    const cookie ="<?php echo $fitcook['value']; ?>";
+    const cookie = "<?php echo $main_cook['value'];?>";
 
     var temp;
     let fitbit_user_id;

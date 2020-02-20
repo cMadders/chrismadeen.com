@@ -23,6 +23,12 @@
 ?><!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        // To Do - add https redirect in .htaccess
+    if (location.protocol != 'https:'){
+        location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
+    }
+    </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Arrested Development Facts and Theories</title>
@@ -279,7 +285,7 @@
 <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script src="https://vjs.zencdn.net/6.2.0/video.min.js"></script>
 <script type="text/javascript">
-    var cookie ='<?php echo $_COOKIE['Cook']; ?>';
+    const cookie = "<?php echo $main_cook['value'];?>";
     var baseURL = '<?php echo $baseURL;?>';
     var filterObjects = new Array();
     

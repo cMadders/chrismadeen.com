@@ -89,7 +89,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="sentence-container row">
             <div id="sentence_images" class="col-xs-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 sentence-images">
                 <div id="sentence_play_button" class="sentence-play-button col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
-                    <img class="vocabulary-image img-responsive" src="http://www.chrismadeen.com/img/talking/misc/playbutton.png">
+                    <img class="vocabulary-image img-responsive" src="https://www.chrismadeen.com/img/talking/misc/playbutton.png">
                 </div>
             </div>
         </div>
@@ -98,7 +98,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script src="https://vjs.zencdn.net/6.2.0/video.min.js"></script>
 <script>
-    var BASE = 'http://www.chrismadeen.com/';
+    var BASE = 'https://www.chrismadeen.com/';
     var AUDIO_BASE = BASE + 'audio/TapTalk/';
     
     // Objects
