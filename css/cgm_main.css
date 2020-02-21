@@ -19,6 +19,12 @@
 @-moz-document url-prefix() {
     html,body{overflow: hidden !important;}
 }    
+
+    @media screen and (max-width: 3000px) and (min-width: 768) {
+        .banner-links{
+            font-size:1.3em !important;
+        }
+    }
     @media screen and (max-width: 800px) and (min-width: 600px) {
         .nav-button {
            font-size: larger !important;
@@ -123,11 +129,19 @@
         min-width:90px;
         padding-bottom: 10px;
     }
+    
+    .banner-links{
+        font-size:1em;
+        font-weight:600;
+        margin:auto;
+    }
+    
     .banner-text{
         margin: auto;
         color: white;
         width: 100%;
         font-size:initial;
+        font-weight:600;
     }
     
     .banner-text-accent{
@@ -158,6 +172,7 @@
     .collapse-chevron i{
         margin:auto;
     }
+    
     
     .canvas{
         margin-top:10px;
@@ -236,7 +251,8 @@
         font-family: 'Varela Round', sans-serif;
         padding: 10px;
         display:flex;
-        
+        background-image: url(https://www.chrismadeen.com/img/backgrounds/concentric_circles.jpeg);
+        background-repeat: no-repeat;
     }
     
     .menu-bar-anchor{
@@ -302,7 +318,6 @@
     }
     
     .side-bar{
-        background-color: #303030;
         height: 100%;
         border-left: 2px;
         border-left-color: white;
@@ -364,6 +379,14 @@
     
     .theme-color{
         color:white;
+    }
+    
+    .theme-color a:hover, .theme-color a:active,.theme-color a:focus{
+        color: #df3c00
+    }
+    
+    .theme-color-accent{
+        color:#df3c00;
     }
     
     .loader {

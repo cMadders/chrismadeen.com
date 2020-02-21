@@ -9,15 +9,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     }
     </script>
 <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-128622299-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-128622299-1');
-    </script>
+    <?php include 'application/views/google_inserts/google_header_tag.php'; ?>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -37,6 +29,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <script  src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 
 <body class="container-fluid theme-background-color">
+    <?php include 'application/views/google_inserts/google_body_tag.php'; ?>
     <div id="menu_bar" class="menu-bar row theme-background-color theme-border-bottom">
         <div class="banner-header col-xs-4 col-sm-4 col-md-4 col-lg-5 col-xl-4">
             <div class="row">
@@ -50,7 +43,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
             </div>
         </div>
-        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-7 col-xl-8" style="margin:auto">
+        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-7 col-xl-8 banner-links">
             <div class="centered-items theme-color row">
                 <span class="col-xs-6 col-sm-3 col-md-3 col-lg-3 col-xl-3"><a class="theme-color" href="https://codeigniter.com/" target="_blank">Codeigniter</a></span>
                 <span class="col-xs-6 col-sm-3 col-md-3 col-lg-3 col-xl-3"><a class="theme-color" href="d3js.org" target="_blank">D3.js</span></a>
@@ -113,6 +106,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <li>Java</li>
                                 <li>Node.js</li>
                                 <li>Javascript/JQuery</li>
+                                <li>Responsive Design</li>
                                 <li>Object Oriented Programming</li>
                                 <li>Relational Database Design</li>
                                 <li>Adobe Creative Suite (Sciprting, Editing, Animation)</li>
@@ -144,6 +138,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <li>Java</li>
                                 <li>Node.js</li>
                                 <li>Javascript/JQuery</li>
+                                <li>Responsive Design</li>
                                 <li>Object Oriented Programming</li>
                                 <li>Relational Database Design</li>
                                 <li>Adobe Creative Suite (Sciprting, Editing, Animation)</li>
@@ -184,7 +179,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
             </div>
         </div>
-        <div class="side-bar col-xs-2 col-sm-3 col-md-2 col-lg-2 col-xl-1">
+        <div class="side-bar col-xs-2 col-sm-3 col-md-2 col-lg-2 col-xl-1 theme-background-color">
             <div class="row">
                 <div class="side-bar-header">
                   <img src="https://www.chrismadeen.com/img/thumbnails/cm_logo_small.png" class="img-responsive"/>
@@ -207,7 +202,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </li>
                 <li class="nav-item cgm-nav col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                     <a class="nav-link menu-bar-anchor row" href="https://github.com/cMadders?tab=repositories" target="_blank">
-                        <i class="fab fa-git-square side-bar-glyph col-xl-12 col-sm-5 col-md-4 col-lg-4 col-xl-4"  title="Git Repositories"></i>
+                        <i class="fab fa-github side-bar-glyph col-xl-12 col-sm-5 col-md-4 col-lg-4 col-xl-4"  title="Git Repositories"></i>
                         <div class="hidden-xs col-sm-7 col-md-8 col-lg-8 col-xl-8 side-bar-glyph-container"><span class="side-bar-glyph-header">Github</span></div>
                     </a>
                 </li>
@@ -251,7 +246,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
     <?php include 'application/views/modals/activity_range_modal.php'; ?>
     <?php include 'application/views/modals/fitbit_login_modal.php'; ?>
-    <span open="true" id="side_collapser" class=" collapse-chevron"><i class="fas fa-chevron-right"></i></span>
+    <span open="true" id="side_collapser" class=" collapse-chevron"><i class="fas fa-chevron-right theme-color-accent"></i></span>
 </body>
 <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script src="https://vjs.zencdn.net/6.2.0/video.min.js"></script>
@@ -290,6 +285,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         $('#resume_container').append($(resumeFrame));
         
         resumeLoaded = true;
+        $('#side_collapser').click();
     });
     
     $('#fitbit_button').on('click',function(){
@@ -426,8 +422,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 .style("overflow-y","scroll")
                 .style("height", "100%")
                 .transition()
+                .ease(d3.easeBounce)
                 .style("height", "0%")
-                .duration('800').on("end",function(){
+                .duration('1200').on("end",function(){
                     $(selector).addClass('hidden');
                     $(selector).attr('style','');
                     $(relatedSelect).addClass('hidden');
@@ -445,8 +442,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 .style("overflow-y","scroll")
                 .style("height", "0%")
                 .transition()
+                .ease(d3.easeBounce)
                 .style("height", "100%")
-                .duration('800').on("end",function(){
+                .duration('1200').on("end",function(){
                     $(selector).attr("style","");
                     $(relatedSelect).removeClass('hidden');
                 });

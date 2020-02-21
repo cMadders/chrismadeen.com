@@ -3,16 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?><!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-128622299-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-128622299-1');
-    </script>
-    
+    <?php include 'application/views/google_inserts/google_header_tag.php'; ?>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Fitbit API and Graphing</title>
@@ -23,6 +14,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <link href="https://www.chrismadeen.com/css/charts.css" rel="stylesheet">
 </head>
 <body class="container-fluid" style="margin-top:15px;max-width:1200px;text-align:center;display:flex">
+    <?php include 'application/views/google_inserts/google_body_tag.php'; ?>
     <div id="fitbit_container" class="container-fluid canvas row theme-color" style="height:100%;overflow-y:scroll;margin:auto">
         <div class="chart-container col-xs-12 col-sm-12  col-md-offset-1 col-lg-offset-0 col-md-9 col-lg-8 col-xl-8" id="foot_chart">
             <canvas width="960" height="500" class="chart-canvas" id="foot_chart_canvas"></canvas>

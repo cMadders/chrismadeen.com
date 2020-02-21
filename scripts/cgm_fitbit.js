@@ -85,6 +85,28 @@ var graphActivity = function(data){
     return data;
 };
 
+function getActivitiesDateRange(dateStart,dateEnd,activity){
+    return new Promise((resolve,reject) => {
+        fetch(
+              'https://api.fitbit.com/1/user/-/activities/' + activity + '/date/' + dateStart + '/' + dateEnd + '.json',
+                {
+                    headers: new Headers({
+                        'Authorization': 'Bearer ' + fitbitAccessToken
+                    }),
+                    mode: 'cors',
+                    method: 'GET'
+                }
+        ).then(processResponse)
+        .then(data=>{
+            resolve(data);
+        })
+        .catch(function(error) {
+            window.console.log(error);
+            reject(error);
+        });
+    });   
+}
+
 function getDailyActivitiesDateRange(dateStart,dateEnd,activity){
     return new Promise((resolve,reject) => {
         fetch(
