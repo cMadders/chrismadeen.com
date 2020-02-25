@@ -23,7 +23,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <link href="https://www.chrismadeen.com/css/cgm_main.css?modified=<?php echo filemtime(FCPATH . 'css/cgm_main.css')?>" rel="stylesheet">
     <link href="https://www.chrismadeen.com/css/charts.css?modified=<?php echo filemtime(FCPATH . 'css/charts.css')?>" rel="stylesheet">
     <link href="https://use.fontawesome.com/releases/v5.1.1/css/all.css" rel="stylesheet">
-   <link href="https://fonts.googleapis.com/css?family=Varela+Round|Work+Sans|Zilla+Slab&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Varela+Round|Work+Sans|Zilla+Slab&display=swap" rel="stylesheet">
+    <link href="https://vjs.zencdn.net/6.2.0/video-js.css" rel="stylesheet">
 </head>
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script  src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
@@ -77,6 +78,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
             <div id="resume_container" class="hidden container-fluid canvas">
 
+            </div>
+            <div id="video_container" class="hidden container-fluid canvas">
+                <div id="video_player_container" class="video-player">
+                    <div id="videoWrapper" class="center-block">
+                        <video id="videoPlayer" class="video-js vjs-16-9" controls poster="https://www.chrismadeen.com/img/backgrounds/computer_screen.jpeg" data-setup="{}"></video>
+                    </div>
+                </div>
             </div>
             <div id="about_container" class="container-fluid row canvas hidden">
                 <div class="dialogue col-xs-12 col-sm-12 col-lg-12 col-xl-12">
@@ -222,6 +230,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                           <a id="fitbit_button" class="nav-link canvas-toggle sidebar-subtext" href="#" victim="#fitbit_container">Fit API</a>
                         </li>
                         <li class="nav-item cgm-nav col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                          <a id="maap_preview_button" class="nav-link canvas-toggle sidebar-subtext" href="#" victim="#video_container">MAAP</a>
+                        </li>
+                        <li class="nav-item cgm-nav col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                           <a id="herbert_button" class="nav-link sidebar-subtext" href="#">Herbert</a>
                         </li>
                         <li class="nav-item cgm-nav col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
@@ -255,6 +266,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <script type="text/javascript" src="https://www.chrismadeen.com/scripts/cgm_charts.js?modified=<?php echo filemtime(FCPATH . 'scripts/cgm_charts.js')?>"></script>
 <script type="text/javascript" src="https://www.chrismadeen.com/scripts/cgm_fitbit.js?modified=<?php echo filemtime(FCPATH . 'scripts/cgm_fitbit.js')?>"></script>
 <script type="text/javascript" src="https://www.chrismadeen.com/scripts/cgm_js_helper_functions.js?modified=<?php echo filemtime(FCPATH . 'scripts/cgm_js_helper_functions.js')?>"></script>
+<script src="https://vjs.zencdn.net/6.2.0/video.min.js"></script>
 <script>
     // Note to Viewer - Some methodology could be more efficient within this script tag.  The intent is to show
     // knowledge of rudimentary javascript functionality with different control structures and functions with 
@@ -269,7 +281,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     let windowFocused = true;
     let resumeLoaded = false;
     let drawingFunctions = {steps:drawFootChart};
+    let videoPlayer;
     
+    $(document).ready(function(){
+       videoPlayer = videojs("videoPlayer"); 
+    });
     // On Click Events
     $('#resume_button').on('click',function(){
 
@@ -306,6 +322,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 .catch(function(data){
                     window.console.log(data);
                 });
+   });
+   
+   $('#maap_preview_button').on('click',function(){
+        videoPlayer.src([
+            {
+                type: "video/mp4",
+                src: "https://www.chrismadeen.com/videos/MAAP_Demonstration.mp4"
+            }
+        ]);
    });
    
    $('#date_modal_save').on('click',function(){
@@ -428,6 +453,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     $(selector).addClass('hidden');
                     $(selector).attr('style','');
                     $(relatedSelect).addClass('hidden');
+                    videoPlayer.pause();
                 });
     }
     

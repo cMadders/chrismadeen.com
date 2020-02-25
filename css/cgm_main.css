@@ -75,6 +75,11 @@
         .sidebar-subtext{
             font-size:.6em;
         }
+        
+        .vjs-big-play-button {
+            font-size:1em !important;
+        }
+        
         /*
         .menu-container{
             font-size:1.3em;
@@ -387,6 +392,16 @@
     
     .theme-color-accent{
         color:#df3c00;
+    }
+    
+    #video_player_container{
+        margin: auto;
+        width: 100%;
+    }
+    
+    .vjs-big-play-button {
+        left: 45% !important;
+        top: 40% !important;
     }
     
     .loader {
