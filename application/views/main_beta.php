@@ -25,6 +25,27 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <link href="https://use.fontawesome.com/releases/v5.1.1/css/all.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Varela+Round|Work+Sans|Zilla+Slab&display=swap" rel="stylesheet">
     <link href="https://vjs.zencdn.net/6.2.0/video-js.css" rel="stylesheet">
+    <style>
+
+    .node {
+      cursor: pointer;
+      stroke: #3182bd;
+      stroke-width: 1.5px;
+    }
+
+    .link {
+      fill: none;
+      stroke: #9ecae1;
+      stroke-width: 1.5px;
+    }
+
+    .text{
+        font-weight:bold;
+        text-anchor:middle;
+        font-size:1em;
+    }
+    
+    </style>
 </head>
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script  src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
@@ -77,6 +98,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
             </div>
             <div id="resume_container" class="hidden container-fluid canvas">
+
+            </div>
+            <div id="skill_bubble_container" class="container-fluid canvas">
 
             </div>
             <div id="video_container" class="hidden container-fluid canvas">
@@ -272,6 +296,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     // knowledge of rudimentary javascript functionality with different control structures and functions with 
     // a little bit of humor to go along with it.
     // To Do - Redirect in .htaccess
+    
     const cookie = "<?php echo $main_cook['value'];?>";
     const cgmBase = "https://www.chrismadeen.com/";
     const fitbitAPIDemo = cgmBase + "Main/fitbit";
@@ -286,6 +311,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     $(document).ready(function(){
        videoPlayer = videojs("videoPlayer"); 
     });
+    
     // On Click Events
     $('#resume_button').on('click',function(){
 
@@ -534,5 +560,270 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         windowFocused =false;
     });
     
+</script>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script>
+
+var svgWidth = 960,
+    svgHeight = 500,
+    animationStep = 400;
+
+var svg = d3.select("#skill_bubble_container").append("svg")
+    .attr("width", svgWidth)
+    .attr("height", svgHeight);
+
+var link = svg.selectAll(".link"),
+    node = svg.selectAll(".node");
+
+var dataNodes = [   {x:0,y:0,label:"Web Dev",children:
+                    [
+                        {label:'Frontend',children:
+                        [
+                            {label:'Javascript',children:
+                                [
+                                {label:"JQuery"},
+                                {label:"Ajax"},
+                                {label:"Phaser.js"},
+                                {label:"D3.js"}
+                                ]
+                            },
+                            {label:"Responsive Design"}
+                            ,
+                            {label:"HTML5"}
+                            ,
+                            {label:"CSS"}
+                            ,
+                            {label:"React"}
+                        ]},
+                        {label:'Backend',children:[
+                            {label:"PHP"},
+                            {label:"MYSQL"},
+                            {label:"Node.js"},
+                            {label:"Relational DB"},
+                            {label:"Apache"}
+                        ]},
+                        {label:'AWS',children:[
+                            {label:"S3"},
+                            {label:"MYSQL"},
+                            {label:"Node.js"},
+                            {label:"Relational DB"},
+                            {label:"Apache"}
+                        ]},
+                        {label:'APIs',children:[
+                           {label:'Google',children:[
+                              {label:"Analytics"},
+                              {label:"Drive"},
+                              {label:"Indexing"}
+                          ]},
+                          {label:"Facebook"},
+                          {label:"Twitter"}
+                        ]},
+                        {label:"GIT"}
+                    ]},
+                {x:0,y:0,label: "OS",children:[
+                        {label:"Windows"},
+                        {label:"Linux"},
+                        {label:"Mac"}
+                ]},
+                {x:0,y:0,label: "OOP",children:[
+                        {label:"Java"},
+                        {label:"C#"}
+                ]},
+                {x:0,y:0,label: "Software",children:[
+                        {label:"Adobe",children:[
+                            {label:"After Effects"},
+                            {label:"Premiere"},
+                            {label:"Photoshop"},
+                            {label:"Illustrator"}
+                        ]},
+                        {label: "IDEs",children:[
+                            {label:"Netbeans"},
+                            {label:"Eclipse"},
+                            {label:"JGrasp"}
+                        ]},
+                        {label:"Audacity"},
+                        {label:"Sound Forge"},
+                        {label:"Blender 3D"},
+                        {label:"Maya"},
+                        {label:"GIMP"}
+                ]},
+                {x:0,y:0,label:"Scripting",children:[
+                        {label:"Bash"},
+                        {label:"Python"},
+                        {label:"C#"}
+                ]},
+                {x:0,y:0,label:"Talents",children:[
+                        {label:"Voice Over"},
+                        {label:"Animation"},
+                        {label:"Video Editing"},
+                        {label:"Fast Learner"}
+                ]}
+            ];
+            
+var dataLinks = [];
+var root = flatten(dataNodes[0]);
+
+for(i in dataNodes){
+    i = parseInt(i);
+    if(i != (dataNodes.length - 1)){
+        dataLinks.push({target:i + 1,source:i});
+    }else{
+        dataLinks.push({target:0,source: i});
+    }
+        
+}
+
+var initForce = function() {
+
+    svg.selectAll('*').remove();
+    /*
+    var dataLinks = [
+        { source: 0, target: 1, className: 'red'},
+        { source: 1, target: 2},
+        { source: 2, target: 0}
+    ];
+    */
+    // Now we create a force layout object and define its properties.
+    // Those include the dimensions of the visualization and the arrays
+    // of nodes and links.
+
+    force = d3.layout.force()
+        .size([svgWidth, svgHeight])
+        .nodes(dataNodes)
+        .links(dataLinks);
+
+    // Define the `linkDistance` for the graph. This is the
+    // distance we desire between connected nodes.
+
+    force.linkDistance(svgHeight / 4);
+
+    // Here's the part where things get interesting. Because
+    // we're looking at the `linkStrength` property, that's what
+    // we want to vary between the read and blue nodes. Most often
+    // this property is set to a constant value for an entire
+    // visualization, but D3 also lets us define it as a function.
+    // When we do that, we can set a different value for each node.
+
+    force.linkStrength(function(link) {
+        window.console.log(link);
+        return 7.5;
+    });
+
+    // Next we'll add the nodes and links to the visualization.
+    // Note that we're just sticking them into the SVG container
+    // at this point. We start with the links. The order here is
+    // important because we want the nodes to appear "on top of"
+    // the links. SVG doesn't really have a convenient equivalent
+    // to HTML's `z-index`; instead it relies on the order of the
+    // elements in the markup. By adding the nodes _after_ the
+    // links we ensure that nodes appear on top of links.
+
+    // Links are pretty simple. They're just SVG lines. We're going
+    // to position the lines according to the centers of their
+    // source and target nodes. You'll note that the `source`
+    // and `target` properties are indices into the `nodes`
+    // array. That's how our data is structured and that's how
+    // D3's force layout expects its inputs. As soon as the layout
+    // begins executing, however, it's going to replace those
+    // properties with references to the actual node objects
+    // instead of indices.
+    links = svg.selectAll('.link')
+        .data(dataLinks)
+        .enter().append('line')
+        .attr('class', 'link')
+        .attr('x1', function(d) { return dataNodes[d.source].x; })
+        .attr('y1', function(d) { return dataNodes[d.source].y; })
+        .attr('x2', function(d) { return dataNodes[d.target].x; })
+        .attr('y2', function(d) { return dataNodes[d.target].y; });
+    
+    // Now it's the nodes turn. Each node is drawn as a circle and
+    // given a radius and initial position within the SVG container.
+    // As is normal with SVG circles, the position is specified by
+    // the `cx` and `cy` attributes, which define the center of the
+    // circle. We actually don't have to position the nodes to start
+    // off, as the force layout is going to immediately move them.
+    // But this makes it a little easier to see what's going on
+    // before we start the layout executing.
+
+    nodes = svg.selectAll('.node')
+        .data(dataNodes)
+        .enter().append('circle')
+        .attr('class', 'node')
+        .attr('r', 50)
+        .attr('cx', function(d) { return svgWidth / 2;})
+        .attr('cy', function(d) { return svgHeight / 2; });
+
+        
+    text = svg.selectAll('.text')
+            .data(dataNodes)
+            .enter().append('text')
+            .attr('class','text')
+            .attr('x', function(d) { return svgWidth / 2;})
+            .attr('y', function(d) { return svgHeight / 2; })
+            .attr('fill','yellow')
+            .attr('text-anchor','middle')
+            .attr("font-size", 10)
+            .attr("font-family", "sans-serif")
+            .text(function(d){
+                return d.label;
+            });
+
+    // If we've defined a class name for a link, add it to the
+    // element. We'll use the D3 `each` function to iterate
+    // through the selection. The parameter passed to that
+    // function is the data objected associated with the
+    // selection which, by convention, is parameterized as `d`.
+    // In our case that will be the link object.
+
+    // Also in the `each` function, the context (`this`) is
+    // set to the associated node in the DOM.
+    
+    links.each(function(d){
+        if (d.className) {
+            d3.select(this).classed(d.className, true);
+        }
+    });
+    
+    force.charge(function(node) {
+        window.console.log(node);
+        if (node.className === 'red')  return 3;
+        return -800;
+    });
+    force.on('tick',function(){
+        nodes.transition().ease('linear').duration(animationStep)
+            .attr('cx', function(d) { return d.x; })
+            .attr('cy', function(d) { return d.y; });  
+        text.transition().ease('linear').duration(animationStep)
+            .attr('x', function(d) { return d.x; })
+            .attr('y', function(d) { return d.y; });  
+        links.transition().ease('linear').duration(animationStep)
+            .attr('x1', function(d) { return d.source.x; })
+            .attr('y1', function(d) { return d.source.y; })
+            .attr('x2', function(d) { return d.target.x; })
+            .attr('y2', function(d) { return d.target.y; });
+    });
+    force.start();
+};
+
+var tick = function(node,link){
+
+};
+
+// Returns a list of all nodes under the root.
+function flatten(root) {
+  var nodes = [], i = 0;
+
+  function recurse(node,parent) {
+    if (node.children) node.children.forEach(function(child){
+        recurse(child,node);
+    });
+    if (!node.id) node.id = ++i;
+    if (parent) node.parent = parent;
+    nodes.push(node);
+  }
+
+  recurse(root,null);
+  return nodes;
+}
 </script>
 </html>
