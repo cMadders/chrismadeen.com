@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <html lang="en">
     <script>
         // To Do - add https redirect in .htaccess
-    if (location.protocol != 'https:'){
+    if (location.protocol != 'https:'){d
         location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
     }
     </script>
@@ -33,6 +33,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
       stroke-width: 1.5px;
     }
 
+    .semi-node{
+        fill: #2064a2;
+        stroke: #0095ff;
+        stroke-width: 1.5px;
+    }
+    
     .link {
       fill: none;
       stroke: #9ecae1;
@@ -43,10 +49,25 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         font-weight:bold;
         text-anchor:middle;
         font-size:1em;
+        fill:white;
+        pointer-events:none;
+    }
+    
+    .text-semi{
+        font-weight:bold;
+        text-anchor:middle;
+        font-size:.7em;
+        fill:white;
+        pointer-events:none;
     }
     
     </style>
 </head>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script>
+    var d3v3 = d3;
+    window.d3 = null;
+</script>
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script  src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 
@@ -561,14 +582,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     });
     
 </script>
-<script src="//d3js.org/d3.v3.min.js"></script>
 <script>
 
 var svgWidth = 960,
     svgHeight = 500,
-    animationStep = 400;
+    animationStep = 400,
+    circleRadius = svgWidth / 30,
+    semiCircleRadius = circleRadius / 2,
+    force = null;
 
-var svg = d3.select("#skill_bubble_container").append("svg")
+var svg = d3v3.select("#skill_bubble_container").append("svg")
     .attr("width", svgWidth)
     .attr("height", svgHeight);
 
@@ -661,103 +684,94 @@ var dataNodes = [   {x:0,y:0,label:"Web Dev",children:
             ];
             
 var dataLinks = [];
-var root = flatten(dataNodes[0]);
+var root = flatten(dataNodes);
+let firstParent = null;
+let currentParent = null;
+let parentNodes = 1;
 
-for(i in dataNodes){
+// Link child to parent nodes
+for(i in root){
     i = parseInt(i);
-    if(i != (dataNodes.length - 1)){
-        dataLinks.push({target:i + 1,source:i});
-    }else{
-        dataLinks.push({target:0,source: i});
+    if(!root[i].parent){
+        if (!firstParent){
+            firstParent = i;
+            currentParent = i;
+            continue;
+        }else{
+            dataLinks.push({target:currentParent,source:i,type:'parent'});
+            currentParent = i;
+        }
+        parentNodes++;
+        if(parentNodes == dataNodes.length)
+            dataLinks.push({target:currentParent,source:firstParent,type:'parent'});
     }
-        
+    for(k in root){
+        k = parseInt(k);
+        if(root[k] == root[i].parent)
+            dataLinks.push({target:k,source:i,type:'child'});
+    }
 }
 
 var initForce = function() {
 
     svg.selectAll('*').remove();
-    /*
-    var dataLinks = [
-        { source: 0, target: 1, className: 'red'},
-        { source: 1, target: 2},
-        { source: 2, target: 0}
-    ];
-    */
-    // Now we create a force layout object and define its properties.
-    // Those include the dimensions of the visualization and the arrays
-    // of nodes and links.
 
-    force = d3.layout.force()
+    force = d3v3.layout.force()
         .size([svgWidth, svgHeight])
-        .nodes(dataNodes)
+        .nodes(root)
         .links(dataLinks);
-
-    // Define the `linkDistance` for the graph. This is the
-    // distance we desire between connected nodes.
-
-    force.linkDistance(svgHeight / 4);
-
-    // Here's the part where things get interesting. Because
-    // we're looking at the `linkStrength` property, that's what
-    // we want to vary between the read and blue nodes. Most often
-    // this property is set to a constant value for an entire
-    // visualization, but D3 also lets us define it as a function.
-    // When we do that, we can set a different value for each node.
-
-    force.linkStrength(function(link) {
-        window.console.log(link);
-        return 7.5;
+    /*
+    force.linkDistance(function(d){
+        if(d.type == "child") return svgHeight / 6;
+        
+        return svgHeight / 4;
     });
+    */
+   setInitialLinkDistance(force);
+   setInitialLinkStrength(force);
+   /*
+    force.linkStrength(function(link) {
+        if(link.type == 'child')
+            return 5.25;
+        return 10.5;
+    });
+    */
 
-    // Next we'll add the nodes and links to the visualization.
-    // Note that we're just sticking them into the SVG container
-    // at this point. We start with the links. The order here is
-    // important because we want the nodes to appear "on top of"
-    // the links. SVG doesn't really have a convenient equivalent
-    // to HTML's `z-index`; instead it relies on the order of the
-    // elements in the markup. By adding the nodes _after_ the
-    // links we ensure that nodes appear on top of links.
-
-    // Links are pretty simple. They're just SVG lines. We're going
-    // to position the lines according to the centers of their
-    // source and target nodes. You'll note that the `source`
-    // and `target` properties are indices into the `nodes`
-    // array. That's how our data is structured and that's how
-    // D3's force layout expects its inputs. As soon as the layout
-    // begins executing, however, it's going to replace those
-    // properties with references to the actual node objects
-    // instead of indices.
     links = svg.selectAll('.link')
         .data(dataLinks)
         .enter().append('line')
         .attr('class', 'link')
-        .attr('x1', function(d) { return dataNodes[d.source].x; })
-        .attr('y1', function(d) { return dataNodes[d.source].y; })
-        .attr('x2', function(d) { return dataNodes[d.target].x; })
-        .attr('y2', function(d) { return dataNodes[d.target].y; });
-    
-    // Now it's the nodes turn. Each node is drawn as a circle and
-    // given a radius and initial position within the SVG container.
-    // As is normal with SVG circles, the position is specified by
-    // the `cx` and `cy` attributes, which define the center of the
-    // circle. We actually don't have to position the nodes to start
-    // off, as the force layout is going to immediately move them.
-    // But this makes it a little easier to see what's going on
-    // before we start the layout executing.
+        .attr('x1', function(d) { return root[d.source].x; })
+        .attr('y1', function(d) { return root[d.source].y; })
+        .attr('x2', function(d) { return root[d.target].x; })
+        .attr('y2', function(d) { return root[d.target].y; });
 
     nodes = svg.selectAll('.node')
-        .data(dataNodes)
+        .data(root)
         .enter().append('circle')
-        .attr('class', 'node')
-        .attr('r', 50)
+        .attr('class', function(d){
+            if(!d.parent) return 'node node-root';
+            return 'node semi-node';
+        })
+        .attr('r', function(d){
+            if(!d.parent) return circleRadius;
+            return semiCircleRadius;
+        })
         .attr('cx', function(d) { return svgWidth / 2;})
-        .attr('cy', function(d) { return svgHeight / 2; });
+        .attr('cy', function(d) { return svgHeight / 2; })
+        .attr('id', function(d) { return 'node_' + d.id;})
+        .on('mouseup',circleClick)
+        .on('mousedown',decharge)
+        .call(force.drag);
 
         
     text = svg.selectAll('.text')
-            .data(dataNodes)
+            .data(root)
             .enter().append('text')
-            .attr('class','text')
+            .attr('class',function(d){
+                if(!d.parent) return 'text';
+                    return 'text-semi';
+            })
             .attr('x', function(d) { return svgWidth / 2;})
             .attr('y', function(d) { return svgHeight / 2; })
             .attr('fill','yellow')
@@ -767,32 +781,23 @@ var initForce = function() {
             .text(function(d){
                 return d.label;
             });
-
-    // If we've defined a class name for a link, add it to the
-    // element. We'll use the D3 `each` function to iterate
-    // through the selection. The parameter passed to that
-    // function is the data objected associated with the
-    // selection which, by convention, is parameterized as `d`.
-    // In our case that will be the link object.
-
-    // Also in the `each` function, the context (`this`) is
-    // set to the associated node in the DOM.
     
     links.each(function(d){
         if (d.className) {
-            d3.select(this).classed(d.className, true);
+            d3v3.select(this).classed(d.className, true);
         }
     });
-    
+    /*
     force.charge(function(node) {
-        window.console.log(node);
-        if (node.className === 'red')  return 3;
+        if (node.parent)  return -300;
         return -800;
     });
+    */
+   setInitialCharge(force);
     force.on('tick',function(){
         nodes.transition().ease('linear').duration(animationStep)
-            .attr('cx', function(d) { return d.x; })
-            .attr('cy', function(d) { return d.y; });  
+            .attr('cx', function(d) { return d.x = Math.max(circleRadius, Math.min(svgWidth - circleRadius, d.x)); })
+            .attr('cy', function(d) { return d.y = Math.max(circleRadius, Math.min(svgHeight - circleRadius, d.y)) ; });  
         text.transition().ease('linear').duration(animationStep)
             .attr('x', function(d) { return d.x; })
             .attr('y', function(d) { return d.y; });  
@@ -805,25 +810,103 @@ var initForce = function() {
     force.start();
 };
 
-var tick = function(node,link){
+function setInitialCharge(force){
+    force.charge(function(node) {
+        if (node.parent)  return -300;
+        return -500;
+    });
+}
 
-};
+function setInitialLinkDistance(force){
+    force.linkDistance(function(d){
+        if(d.type == "child") return svgHeight / 6;
+        
+        return svgHeight / 4;
+    });
+}
+
+function setInitialLinkStrength(force){
+    force.linkStrength(function(link) {
+        if(link.type == 'child')
+            return 5.25;
+        return 10.5;
+    });
+}
+
+function decharge(){
+    force.charge(function(node) {
+      window.console.log('decharg');
+      return 0;
+    });  
+}
+
+function circleClick(d){
+    parentClick = false;
+    let tempCircle;
+
+    if(!d.parent){
+        d3v3.selectAll('.node').transition().ease('linear').duration(animationStep * 2)
+               .attr('r',function(d){
+                   tempCircle = d3v3.select(this)[0][0];
+                   if(!d.parent){
+                       return circleRadius;
+                   }else{
+                       return semiCircleRadius;
+                   }
+               });       
+    }else{
+        let rParent = getRootParent(d);
+        expandChildren(rParent);
+    }
+    setInitialCharge(force);
+}
+
+function expandChildren(node){
+    if(node.children){
+        node.children.forEach(function(child){
+           expandChildren(child); 
+        });
+    }
+    d3v3.select('#node_' + node.id).transition().ease('linear').duration(animationStep * 2)
+            .attr('r',function(d){
+                tempCircle = d3v3.select(this)[0][0];
+                if(!d.parent){
+                    return tempCircle.r.baseVal.value / 2;
+                }else{
+                    return tempCircle.r.baseVal.value * 2;
+                }
+            }); 
+}
 
 // Returns a list of all nodes under the root.
 function flatten(root) {
-  var nodes = [], i = 0;
-
-  function recurse(node,parent) {
+  var nodes = [], iob = {iter:0};
+  
+  function recurse(node,parent,i) {
+    i.iter = i.iter + 1;
+    
+    if (!node.id) node.id = i.iter;
+    
     if (node.children) node.children.forEach(function(child){
-        recurse(child,node);
+        recurse(child,node,i);
     });
-    if (!node.id) node.id = ++i;
+    
     if (parent) node.parent = parent;
+    
     nodes.push(node);
   }
-
-  recurse(root,null);
+  
+  for(i in root){
+    recurse(root[i],null,iob);
+  }
+  
   return nodes;
+}
+
+function getRootParent(node){
+    if(node.parent)
+        return getRootParent(node.parent);
+    return node;
 }
 </script>
 </html>
