@@ -22,46 +22,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <link href="https://vjs.zencdn.net/6.2.0/video-js.css" rel="stylesheet">
     <link href="https://www.chrismadeen.com/css/cgm_main.css?modified=<?php echo filemtime(FCPATH . 'css/cgm_main.css')?>" rel="stylesheet">
     <link href="https://www.chrismadeen.com/css/charts.css?modified=<?php echo filemtime(FCPATH . 'css/charts.css')?>" rel="stylesheet">
+    <link href="https://www.chrismadeen.com/css/skill_bubble_force.css?modified=<?php echo filemtime(FCPATH . 'css/skill_bubble_force.css')?>" rel="stylesheet">
     <link href="https://use.fontawesome.com/releases/v5.1.1/css/all.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Varela+Round|Work+Sans|Zilla+Slab&display=swap" rel="stylesheet">
     <link href="https://vjs.zencdn.net/6.2.0/video-js.css" rel="stylesheet">
-    <style>
-
-    .node {
-      cursor: pointer;
-      stroke: #3182bd;
-      stroke-width: 1.5px;
-    }
-
-    .semi-node{
-        fill: #2064a2;
-        stroke: #0095ff;
-        stroke-width: 1.5px;
-    }
-    
-    .link {
-      fill: none;
-      stroke: #9ecae1;
-      stroke-width: 1.5px;
-    }
-
-    .text{
-        font-weight:bold;
-        text-anchor:middle;
-        font-size:1em;
-        fill:white;
-        pointer-events:none;
-    }
-    
-    .text-semi{
-        font-weight:bold;
-        text-anchor:middle;
-        font-size:.7em;
-        fill:white;
-        pointer-events:none;
-    }
-    
-    </style>
 </head>
 <script src="//d3js.org/d3.v3.min.js"></script>
 <script>
@@ -121,7 +85,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div id="resume_container" class="hidden container-fluid canvas">
 
             </div>
-            <div id="skill_bubble_container" class="container-fluid canvas">
+            <div id="skill_bubble_container" class="hidden inactive container-fluid canvas-hide">
 
             </div>
             <div id="video_container" class="hidden container-fluid canvas">
@@ -275,6 +239,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                           <a id="fitbit_button" class="nav-link canvas-toggle sidebar-subtext" href="#" victim="#fitbit_container">Fit API</a>
                         </li>
                         <li class="nav-item cgm-nav col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                          <a id="skill_bubble_button" class="nav-link canvas-hider sidebar-subtext" href="#" victim="#skill_bubble_container">Force Graph</a>
+                        </li>
+                        <li class="nav-item cgm-nav col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                           <a id="maap_preview_button" class="nav-link canvas-toggle sidebar-subtext" href="#" victim="#video_container">MAAP</a>
                         </li>
                         <li class="nav-item cgm-nav col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
@@ -311,6 +278,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <script type="text/javascript" src="https://www.chrismadeen.com/scripts/cgm_charts.js?modified=<?php echo filemtime(FCPATH . 'scripts/cgm_charts.js')?>"></script>
 <script type="text/javascript" src="https://www.chrismadeen.com/scripts/cgm_fitbit.js?modified=<?php echo filemtime(FCPATH . 'scripts/cgm_fitbit.js')?>"></script>
 <script type="text/javascript" src="https://www.chrismadeen.com/scripts/cgm_js_helper_functions.js?modified=<?php echo filemtime(FCPATH . 'scripts/cgm_js_helper_functions.js')?>"></script>
+<script type="text/javascript" src="https://www.chrismadeen.com/scripts/skill_bubble_force.js?modified=<?php echo filemtime(FCPATH . 'scripts/skill_bubble_force.js')?>"></script>
 <script src="https://vjs.zencdn.net/6.2.0/video.min.js"></script>
 <script>
     // Note to Viewer - Some methodology could be more efficient within this script tag.  The intent is to show
@@ -349,6 +317,19 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         
         resumeLoaded = true;
         $('#side_collapser').click();
+    });
+    
+    $('#skill_bubble_button').on('click',function(){
+        let container = $('#skill_bubble_container');
+        if(container.hasClass('inactive')){
+            container.removeClass('hidden');
+            container.removeClass('inactive');
+            initForce();
+        }else{
+            container.addClass('hidden');
+            container.addClass('inactive');
+            force.stop();
+        }
     });
     
     $('#fitbit_button').on('click',function(){
@@ -451,6 +432,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         }
     });
     
+    $('.canvas-hider').on('click',function(){
+        $('.canvas').each(function(){
+            if(!($(this).hasClass('hidden'))){
+                const relatedSelect = "." + $(this).attr('related');
+                rollCanvasUp(this,relatedSelect);
+            }
+        });
+    });
+    
     // Set the current activity to be selected on save
     $('.activity-date-opener').on('click',function(){
         $('#date_modal_save').attr('current_activity',$(this).data('activity'));
@@ -507,6 +497,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     function rollCanvasDown(selector,relatedSelect){
         
         $('.canvas').addClass('hidden');
+        $('.canvas-hide').addClass('hidden');
+        $('.canvas-hide').addClass('inactive');
         $('.canvas-related').addClass('hidden');
         
         $(selector).removeClass('hidden');
@@ -581,332 +573,5 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         windowFocused =false;
     });
     
-</script>
-<script>
-
-var svgWidth = 960,
-    svgHeight = 500,
-    animationStep = 400,
-    circleRadius = svgWidth / 30,
-    semiCircleRadius = circleRadius / 2,
-    force = null;
-
-var svg = d3v3.select("#skill_bubble_container").append("svg")
-    .attr("width", svgWidth)
-    .attr("height", svgHeight);
-
-var link = svg.selectAll(".link"),
-    node = svg.selectAll(".node");
-
-var dataNodes = [   {x:0,y:0,label:"Web Dev",children:
-                    [
-                        {label:'Frontend',children:
-                        [
-                            {label:'Javascript',children:
-                                [
-                                {label:"JQuery"},
-                                {label:"Ajax"},
-                                {label:"Phaser.js"},
-                                {label:"D3.js"}
-                                ]
-                            },
-                            {label:"Responsive Design"}
-                            ,
-                            {label:"HTML5"}
-                            ,
-                            {label:"CSS"}
-                            ,
-                            {label:"React"}
-                        ]},
-                        {label:'Backend',children:[
-                            {label:"PHP"},
-                            {label:"MYSQL"},
-                            {label:"Node.js"},
-                            {label:"Relational DB"},
-                            {label:"Apache"}
-                        ]},
-                        {label:'AWS',children:[
-                            {label:"S3"},
-                            {label:"MYSQL"},
-                            {label:"Node.js"},
-                            {label:"Relational DB"},
-                            {label:"Apache"}
-                        ]},
-                        {label:'APIs',children:[
-                           {label:'Google',children:[
-                              {label:"Analytics"},
-                              {label:"Drive"},
-                              {label:"Indexing"}
-                          ]},
-                          {label:"Facebook"},
-                          {label:"Twitter"}
-                        ]},
-                        {label:"GIT"}
-                    ]},
-                {x:0,y:0,label: "OS",children:[
-                        {label:"Windows"},
-                        {label:"Linux"},
-                        {label:"Mac"}
-                ]},
-                {x:0,y:0,label: "OOP",children:[
-                        {label:"Java"},
-                        {label:"C#"}
-                ]},
-                {x:0,y:0,label: "Software",children:[
-                        {label:"Adobe",children:[
-                            {label:"After Effects"},
-                            {label:"Premiere"},
-                            {label:"Photoshop"},
-                            {label:"Illustrator"}
-                        ]},
-                        {label: "IDEs",children:[
-                            {label:"Netbeans"},
-                            {label:"Eclipse"},
-                            {label:"JGrasp"}
-                        ]},
-                        {label:"Audacity"},
-                        {label:"Sound Forge"},
-                        {label:"Blender 3D"},
-                        {label:"Maya"},
-                        {label:"GIMP"}
-                ]},
-                {x:0,y:0,label:"Scripting",children:[
-                        {label:"Bash"},
-                        {label:"Python"},
-                        {label:"C#"}
-                ]},
-                {x:0,y:0,label:"Talents",children:[
-                        {label:"Voice Over"},
-                        {label:"Animation"},
-                        {label:"Video Editing"},
-                        {label:"Fast Learner"}
-                ]}
-            ];
-            
-var dataLinks = [];
-var root = flatten(dataNodes);
-let firstParent = null;
-let currentParent = null;
-let parentNodes = 1;
-
-// Link child to parent nodes
-for(i in root){
-    i = parseInt(i);
-    if(!root[i].parent){
-        if (!firstParent){
-            firstParent = i;
-            currentParent = i;
-            continue;
-        }else{
-            dataLinks.push({target:currentParent,source:i,type:'parent'});
-            currentParent = i;
-        }
-        parentNodes++;
-        if(parentNodes == dataNodes.length)
-            dataLinks.push({target:currentParent,source:firstParent,type:'parent'});
-    }
-    for(k in root){
-        k = parseInt(k);
-        if(root[k] == root[i].parent)
-            dataLinks.push({target:k,source:i,type:'child'});
-    }
-}
-
-var initForce = function() {
-
-    svg.selectAll('*').remove();
-
-    force = d3v3.layout.force()
-        .size([svgWidth, svgHeight])
-        .nodes(root)
-        .links(dataLinks);
-    /*
-    force.linkDistance(function(d){
-        if(d.type == "child") return svgHeight / 6;
-        
-        return svgHeight / 4;
-    });
-    */
-   setInitialLinkDistance(force);
-   setInitialLinkStrength(force);
-   /*
-    force.linkStrength(function(link) {
-        if(link.type == 'child')
-            return 5.25;
-        return 10.5;
-    });
-    */
-
-    links = svg.selectAll('.link')
-        .data(dataLinks)
-        .enter().append('line')
-        .attr('class', 'link')
-        .attr('x1', function(d) { return root[d.source].x; })
-        .attr('y1', function(d) { return root[d.source].y; })
-        .attr('x2', function(d) { return root[d.target].x; })
-        .attr('y2', function(d) { return root[d.target].y; });
-
-    nodes = svg.selectAll('.node')
-        .data(root)
-        .enter().append('circle')
-        .attr('class', function(d){
-            if(!d.parent) return 'node node-root';
-            return 'node semi-node';
-        })
-        .attr('r', function(d){
-            if(!d.parent) return circleRadius;
-            return semiCircleRadius;
-        })
-        .attr('cx', function(d) { return svgWidth / 2;})
-        .attr('cy', function(d) { return svgHeight / 2; })
-        .attr('id', function(d) { return 'node_' + d.id;})
-        .on('mouseup',circleClick)
-        .on('mousedown',decharge)
-        .call(force.drag);
-
-        
-    text = svg.selectAll('.text')
-            .data(root)
-            .enter().append('text')
-            .attr('class',function(d){
-                if(!d.parent) return 'text';
-                    return 'text-semi';
-            })
-            .attr('x', function(d) { return svgWidth / 2;})
-            .attr('y', function(d) { return svgHeight / 2; })
-            .attr('fill','yellow')
-            .attr('text-anchor','middle')
-            .attr("font-size", 10)
-            .attr("font-family", "sans-serif")
-            .text(function(d){
-                return d.label;
-            });
-    
-    links.each(function(d){
-        if (d.className) {
-            d3v3.select(this).classed(d.className, true);
-        }
-    });
-    /*
-    force.charge(function(node) {
-        if (node.parent)  return -300;
-        return -800;
-    });
-    */
-   setInitialCharge(force);
-    force.on('tick',function(){
-        nodes.transition().ease('linear').duration(animationStep)
-            .attr('cx', function(d) { return d.x = Math.max(circleRadius, Math.min(svgWidth - circleRadius, d.x)); })
-            .attr('cy', function(d) { return d.y = Math.max(circleRadius, Math.min(svgHeight - circleRadius, d.y)) ; });  
-        text.transition().ease('linear').duration(animationStep)
-            .attr('x', function(d) { return d.x; })
-            .attr('y', function(d) { return d.y; });  
-        links.transition().ease('linear').duration(animationStep)
-            .attr('x1', function(d) { return d.source.x; })
-            .attr('y1', function(d) { return d.source.y; })
-            .attr('x2', function(d) { return d.target.x; })
-            .attr('y2', function(d) { return d.target.y; });
-    });
-    force.start();
-};
-
-function setInitialCharge(force){
-    force.charge(function(node) {
-        if (node.parent)  return -300;
-        return -500;
-    });
-}
-
-function setInitialLinkDistance(force){
-    force.linkDistance(function(d){
-        if(d.type == "child") return svgHeight / 6;
-        
-        return svgHeight / 4;
-    });
-}
-
-function setInitialLinkStrength(force){
-    force.linkStrength(function(link) {
-        if(link.type == 'child')
-            return 5.25;
-        return 10.5;
-    });
-}
-
-function decharge(){
-    force.charge(function(node) {
-      window.console.log('decharg');
-      return 0;
-    });  
-}
-
-function circleClick(d){
-    parentClick = false;
-    let tempCircle;
-
-    if(!d.parent){
-        d3v3.selectAll('.node').transition().ease('linear').duration(animationStep * 2)
-               .attr('r',function(d){
-                   tempCircle = d3v3.select(this)[0][0];
-                   if(!d.parent){
-                       return circleRadius;
-                   }else{
-                       return semiCircleRadius;
-                   }
-               });       
-    }else{
-        let rParent = getRootParent(d);
-        expandChildren(rParent);
-    }
-    setInitialCharge(force);
-}
-
-function expandChildren(node){
-    if(node.children){
-        node.children.forEach(function(child){
-           expandChildren(child); 
-        });
-    }
-    d3v3.select('#node_' + node.id).transition().ease('linear').duration(animationStep * 2)
-            .attr('r',function(d){
-                tempCircle = d3v3.select(this)[0][0];
-                if(!d.parent){
-                    return tempCircle.r.baseVal.value / 2;
-                }else{
-                    return tempCircle.r.baseVal.value * 2;
-                }
-            }); 
-}
-
-// Returns a list of all nodes under the root.
-function flatten(root) {
-  var nodes = [], iob = {iter:0};
-  
-  function recurse(node,parent,i) {
-    i.iter = i.iter + 1;
-    
-    if (!node.id) node.id = i.iter;
-    
-    if (node.children) node.children.forEach(function(child){
-        recurse(child,node,i);
-    });
-    
-    if (parent) node.parent = parent;
-    
-    nodes.push(node);
-  }
-  
-  for(i in root){
-    recurse(root[i],null,iob);
-  }
-  
-  return nodes;
-}
-
-function getRootParent(node){
-    if(node.parent)
-        return getRootParent(node.parent);
-    return node;
-}
 </script>
 </html>

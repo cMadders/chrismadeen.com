@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <html lang="en">
     <script>
         // To Do - add https redirect in .htaccess
-    if (location.protocol != 'https:'){
+    if (location.protocol != 'https:'){d
         location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
     }
     </script>
@@ -22,10 +22,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <link href="https://vjs.zencdn.net/6.2.0/video-js.css" rel="stylesheet">
     <link href="https://www.chrismadeen.com/css/cgm_main.css?modified=<?php echo filemtime(FCPATH . 'css/cgm_main.css')?>" rel="stylesheet">
     <link href="https://www.chrismadeen.com/css/charts.css?modified=<?php echo filemtime(FCPATH . 'css/charts.css')?>" rel="stylesheet">
+    <link href="https://www.chrismadeen.com/css/skill_bubble_force.css?modified=<?php echo filemtime(FCPATH . 'css/skill_bubble_force.css')?>" rel="stylesheet">
     <link href="https://use.fontawesome.com/releases/v5.1.1/css/all.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Varela+Round|Work+Sans|Zilla+Slab&display=swap" rel="stylesheet">
     <link href="https://vjs.zencdn.net/6.2.0/video-js.css" rel="stylesheet">
 </head>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script>
+    var d3v3 = d3;
+    window.d3 = null;
+</script>
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script  src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 
@@ -77,6 +83,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
             </div>
             <div id="resume_container" class="hidden container-fluid canvas">
+
+            </div>
+            <div id="skill_bubble_container" class="hidden inactive container-fluid canvas-hide">
 
             </div>
             <div id="video_container" class="hidden container-fluid canvas">
@@ -230,6 +239,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                           <a id="fitbit_button" class="nav-link canvas-toggle sidebar-subtext" href="#" victim="#fitbit_container">Fit API</a>
                         </li>
                         <li class="nav-item cgm-nav col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                          <a id="skill_bubble_button" class="nav-link canvas-hider sidebar-subtext" href="#" victim="#skill_bubble_container">Force Graph</a>
+                        </li>
+                        <li class="nav-item cgm-nav col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                           <a id="maap_preview_button" class="nav-link canvas-toggle sidebar-subtext" href="#" victim="#video_container">MAAP</a>
                         </li>
                         <li class="nav-item cgm-nav col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
@@ -266,12 +278,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <script type="text/javascript" src="https://www.chrismadeen.com/scripts/cgm_charts.js?modified=<?php echo filemtime(FCPATH . 'scripts/cgm_charts.js')?>"></script>
 <script type="text/javascript" src="https://www.chrismadeen.com/scripts/cgm_fitbit.js?modified=<?php echo filemtime(FCPATH . 'scripts/cgm_fitbit.js')?>"></script>
 <script type="text/javascript" src="https://www.chrismadeen.com/scripts/cgm_js_helper_functions.js?modified=<?php echo filemtime(FCPATH . 'scripts/cgm_js_helper_functions.js')?>"></script>
+<script type="text/javascript" src="https://www.chrismadeen.com/scripts/skill_bubble_force.js?modified=<?php echo filemtime(FCPATH . 'scripts/skill_bubble_force.js')?>"></script>
 <script src="https://vjs.zencdn.net/6.2.0/video.min.js"></script>
 <script>
     // Note to Viewer - Some methodology could be more efficient within this script tag.  The intent is to show
     // knowledge of rudimentary javascript functionality with different control structures and functions with 
     // a little bit of humor to go along with it.
     // To Do - Redirect in .htaccess
+    
     const cookie = "<?php echo $main_cook['value'];?>";
     const cgmBase = "https://www.chrismadeen.com/";
     const fitbitAPIDemo = cgmBase + "Main/fitbit";
@@ -286,6 +300,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     $(document).ready(function(){
        videoPlayer = videojs("videoPlayer"); 
     });
+    
     // On Click Events
     $('#resume_button').on('click',function(){
 
@@ -302,6 +317,19 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         
         resumeLoaded = true;
         $('#side_collapser').click();
+    });
+    
+    $('#skill_bubble_button').on('click',function(){
+        let container = $('#skill_bubble_container');
+        if(container.hasClass('inactive')){
+            container.removeClass('hidden');
+            container.removeClass('inactive');
+            initForce();
+        }else{
+            container.addClass('hidden');
+            container.addClass('inactive');
+            force.stop();
+        }
     });
     
     $('#fitbit_button').on('click',function(){
@@ -404,6 +432,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         }
     });
     
+    $('.canvas-hider').on('click',function(){
+        $('.canvas').each(function(){
+            if(!($(this).hasClass('hidden'))){
+                const relatedSelect = "." + $(this).attr('related');
+                rollCanvasUp(this,relatedSelect);
+            }
+        });
+    });
+    
     // Set the current activity to be selected on save
     $('.activity-date-opener').on('click',function(){
         $('#date_modal_save').attr('current_activity',$(this).data('activity'));
@@ -460,6 +497,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     function rollCanvasDown(selector,relatedSelect){
         
         $('.canvas').addClass('hidden');
+        $('.canvas-hide').addClass('hidden');
+        $('.canvas-hide').addClass('inactive');
         $('.canvas-related').addClass('hidden');
         
         $(selector).removeClass('hidden');
