@@ -362,6 +362,11 @@
         font-weight:bold;
     }
     
+    #skill_bubble_container{
+        height:100%;
+        min-height:500px;
+    }
+    
     .skills-list{
         font-size:large;
     }
