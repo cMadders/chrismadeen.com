@@ -255,9 +255,10 @@
     .menu-bar{
         font-family: 'Varela Round', sans-serif;
         padding: 10px;
-        display:flex;
+        display: flex;
         background-image: url(https://www.chrismadeen.com/img/backgrounds/concentric_circles.jpeg);
         background-repeat: no-repeat;
+        background-size: 100%
     }
     
     .menu-bar-anchor{
