@@ -66,9 +66,23 @@ class Fitbit_model extends CI_Model {
         $this->db->where('dateTime BETWEEN "' . $dateStart . '" AND "' . $dateEnd . '"');
         $this->db->order_by('dateTime', 'ASC');
         $query = $this->db->get('fitbit_activities');
-        return $query->result();
+        $result = $query->result();
+        if(count($result) == 0){
+            $result = getMostRecentActivities($activity, $user);
+        }
+        return $result;
     }
     
+    function getMostRecentActivities($activity,$user){
+        $this->db->select("value");
+        $this->db->select("DATE_FORMAT(dateTime,'%Y-%m-%d') as dateTime");
+        $this->db->where('activity',$activity);
+        $this->db->where('fitbit_user',$user);
+        $this->db->order_by('dateTime', 'ASC');
+        $query = $this->db->get('fitbit_activities',7);
+        return $query->result();
+    }
+
     function getLocalUser($userID){
         $this->db->where('user_id',$userID);
         $query = $this->db->get('fitbit_users');
